@@ -1,0 +1,46 @@
+version: '3'
+
+networks:
+  my-network:
+
+services:
+  php7.4:
+    build:
+      context: ../php7.4-apache
+    image: inovationzone/php7.4-apache
+    container_name: php7.4-apache
+    restart: unless-stopped
+    networks:
+      - my-network
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /www:/var/www/html
+      - ./apache/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+    volumes:
+      - /db/mysql:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - my-network
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    networks:
+      - my-network
+    depends_on:
+      - mysql
+    ports:
+      - 8183:80
+    environment:
+      PMA_HOST: mysql
+      PMA_ROOT_PASSWORD: admin
+
+
